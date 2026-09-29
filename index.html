@@ -258,7 +258,7 @@
     silent:    { fires: 'a green status sitting over zero results', quiet: 'a green status over real output', ceiling: 'an empty result that is actually the correct answer.' },
     ungrounded:{ fires: 'a claim with no source behind it', quiet: 'a claim tied to its source', ceiling: 'a claim that is well-sourced and still wrong.' },
     execution: { fires: 'a step that reported done but never ran', quiet: 'a step with a real artifact behind it', ceiling: 'it needs something concrete to check against — a commit is not enough.' },
-    modelswap: { fires: 'a different model than the one that was asked for', quiet: 'the model the route pinned', ceiling: 'it trusts the gateway’s own report of which model answered.' },
+    modelswap: { fires: 'a different model than the one that was asked for', quiet: 'the model the route pinned — which is what lets you safely run a different brain per task', ceiling: 'it trusts the gateway’s own report of which model answered.' },
   };
   const fcDetail = document.getElementById('fcDetail');
   document.querySelectorAll('#fcRows .cand').forEach(chip => chip.addEventListener('click', () => {
