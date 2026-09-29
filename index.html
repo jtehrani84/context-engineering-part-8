@@ -66,7 +66,7 @@
       From the Evolving Harness<br class="hidden md:block" /> to the <span class="grad">Frontier Harness</span>
     </h1>
     <p class="mt-8 max-w-3xl text-lg md:text-2xl text-slate-300 font-light leading-relaxed">
-      Part 7 proved a guard could grade my writing. Part 8 asks the harder question it left open... what stops a guard the agent can simply switch off for itself? The answer isn't a smarter guard. It's <span class="text-white font-normal">custody</span>: a human who isn't the agent holds the key. Then that one idea travels across three runtimes.
+      Part 7 proved a guard could grade my writing. This one picks up the obvious hole that left behind: if the agent can switch its own guard off, what was the guard ever worth? The answer wasn't a cleverer guard. It was <span class="text-white font-normal">custody</span>, working out who holds the key and making sure that's a human and not the agent. Once that held, the same idea carried over to three different runtimes.
     </p>
     <div class="mt-10 flex flex-wrap gap-x-6 gap-y-2 font-mono text-xs md:text-sm text-slate-400">
       <span>26 components</span><span class="rule">·</span>
@@ -83,7 +83,7 @@
   <section class="py-16 md:py-24 reveal">
     <h2 class="text-2xl md:text-4xl font-bold tracking-tight mb-8">The Wall Part 7 Left Standing</h2>
     <div class="prose-lg max-w-3xl text-slate-300 text-lg">
-      <p>Part 7 ended on a wall I couldn't argue my way past. I'd built a detector that catches generic AI writing well, and it does. But when I pointed a model at imitating <em>me</em> specifically, the detector lost... it scored a deliberate mimic as more me-than-me. No better detector fixes that, because the answer was never in the text. Whether something is authentically mine is a question of provenance... who actually typed it. A detector can improve forever and still never answer that one.</p>
+      <p>Part 7 ended on a wall I couldn't argue my way past. I'd built a detector that catches generic AI writing well, and it does. But when I pointed a model at imitating <em>me</em> specifically, the detector lost, scoring a deliberate mimic as more me-than-me. No better detector fixes that, because the answer was never in the text. Whether something is authentically mine is a question of provenance, of who actually typed it. A detector can improve forever and still never answer that one.</p>
       <p>That sounds like a dead end, and for authorship it mostly is. But it turned out to be the most useful thing Part 7 taught me, because the same shape shows up one level up... in the guard itself.</p>
     </div>
   </section>
@@ -211,7 +211,7 @@
     <div class="prose-lg max-w-3xl text-slate-300 text-lg">
       <p>A guard you only tested on the happy path is a guard you haven't tested. The egress control came straight out of a real, public attack class: an agent reads a poisoned record, and data walks out the door inside a URL that a rendered image quietly resolves... no click, no obvious "send." So I built the guard to treat any resolvable URL as a way out, not just the ones that look like sending.</p>
       <p class="pull pl-5 text-slate-200 text-xl font-light my-8">Then I turned the same adversarial process on the harness itself. Two passes, each one trying to break what the last one built, and then a fuzzer that went after what both of them missed. Together they found and fixed roughly 28 real defects in the harness's own code... including one in the egress guard I'd written specifically to stop that attack, which had its own version of the exact bug it was meant to catch.</p>
-      <p>That last one is the point. The whole thesis is that you don't trust the thing to grade itself, so running the thesis on the harness meant the harness got caught too, before any of it was switched on. That's what earns a gate its trust... it fires on cue, and I've tried hard to break it, and it held.</p>
+      <p>That last one is the point. The whole bet is that you don't let a thing grade itself, and the harness doesn't get to skip its own rule, so its code got caught the same way everything else does, before any of it went live. That's what earns a gate its trust: it fired on cue, I tried hard to break it, and it held.</p>
     </div>
   </section>
 
@@ -227,7 +227,7 @@
 
   <!-- ========== 9. SO WHAT, THEN ========== -->
   <section class="py-16 md:py-24 reveal">
-    <h2 class="text-2xl md:text-4xl font-bold tracking-tight mb-8">So What, Then: What Portability Buys</h2>
+    <h2 class="text-2xl md:text-4xl font-bold tracking-tight mb-8">What You Actually Get to Keep</h2>
     <div class="prose-lg max-w-3xl text-slate-300 text-lg">
       <p>You can't own the frontier model. You rent it, and it changes under you every few months. So the durable thing was never going to be the model. It's everything wrapped around it: the checks that catch how the work goes wrong, the evals that say whether the output is any good, the record of what actually happened, and the custody that decides who's allowed to change any of it.</p>
       <p>Part 7 showed that layer can evolve itself while the model underneath stays frozen. Part 8's addition is that the layer travels. The same core, the same custody, the same honest ceiling, running across whichever runtime the work happens in... and unlike the model you rent, that's yours to keep. And it isn't only my claim... NVIDIA's SoL-Pi built a set of harness improvements on one model and carried them to another with no retraining, the same bet running in someone else's lab.</p>
