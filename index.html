@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>From Evolving Harness to Frontier Harness — Context Engineering, Part 8</title>
+<meta name="description" content="Part 8 of the Context Engineering series: the voice-checking pattern, generalized to the failure classes of agentic work and ported across three runtimes — with the trust root held by a human, not the agent. Custody, not typing." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: { extend: {
+      fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'] },
+      colors: { ink: '#0b1120', card: '#111a2e', line: '#1e2b45', cyan: '#60a5fa', emerald: '#34d399', amber: '#fbbf24', red: '#f87171' },
+    } },
+  };
+</script>
+<style>
+  html { scroll-behavior: smooth; }
+  body { background: #0b1120; color: #e2e8f0; -webkit-font-smoothing: antialiased; }
+  .grad { background: linear-gradient(120deg, #60a5fa 0%, #a78bfa 50%, #34d399 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .hero-gradient { background: radial-gradient(1200px 600px at 70% -10%, rgba(96,165,250,.18), transparent 60%), radial-gradient(900px 500px at 10% 10%, rgba(167,139,250,.14), transparent 55%), #0b1120; }
+  .glass { background: rgba(17,26,46,.72); border: 1px solid #1e2b45; -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+  .rule { color: #64748b; }
+  .eyebrow { letter-spacing: .18em; }
+  .reveal { opacity: 0; transform: translateY(20px); transition: opacity .6s ease, transform .6s ease; }
+  .reveal.in { opacity: 1; transform: none; }
+  .prose-lg p { margin-bottom: 1.15rem; line-height: 1.75; }
+  a.link { color: #60a5fa; text-decoration: underline; text-underline-offset: 3px; text-decoration-color: #1e2b45; }
+  a.link:hover { text-decoration-color: #60a5fa; }
+  table.honest td, table.honest th { border-bottom: 1px solid #1e2b45; padding: .7rem .9rem; vertical-align: top; }
+  .pull { border-left: 3px solid #60a5fa; }
+  .cand { border: 1px solid #1e2b45; border-radius: 10px; cursor: pointer; transition: border-color .2s, background .2s; }
+  .cand:hover { border-color: #3b4c6b; }
+  .cand.sel { border-color: #60a5fa; background: rgba(96,165,250,.06); }
+</style>
+</head>
+<body class="font-sans">
+
+<!-- ================= NAV ================= -->
+<nav class="fixed top-0 w-full z-50" style="background:rgba(11,17,32,.82);backdrop-filter:blur(10px);border-bottom:1px solid #1e2b45">
+  <div class="max-w-6xl mx-auto px-6 py-3 flex justify-between items-center">
+    <span class="text-sm font-mono text-slate-500">context-engineering <span class="text-cyan">//</span> part-8</span>
+    <div class="flex items-center gap-3 sm:gap-4 text-xs font-mono text-slate-500">
+      <a href="https://jtehrani84.github.io/claude-context-architecture/" class="hover:text-slate-300 transition hidden sm:inline">1</a>
+      <a href="https://jtehrani84.github.io/context-engineering-agentscript/" class="hover:text-slate-300 transition hidden sm:inline">2</a>
+      <a href="https://jtehrani84.github.io/context-engineering-mcp/" class="hover:text-slate-300 transition hidden sm:inline">3</a>
+      <a href="https://jtehrani84.github.io/context-engineering-knowledge-graph/" class="hover:text-slate-300 transition hidden sm:inline">4</a>
+      <a href="https://jtehrani84.github.io/context-engineering-skills/" class="hover:text-slate-300 transition hidden sm:inline">5</a>
+      <a href="https://jtehrani84.github.io/claude-context-architecture/from-memory-to-operating-system.html" class="hover:text-slate-300 transition hidden sm:inline">6</a>
+      <a href="https://jtehrani84.github.io/context-engineering-evolution/" class="hover:text-slate-300 transition">7</a>
+      <span class="text-cyan font-semibold">8</span>
+      <a href="https://jtehrani84.github.io/context-engineering-part-9/" class="hover:text-slate-300 transition">9</a>
+      <a href="https://jtehrani84.github.io/context-engineering-part-10/" class="hover:text-slate-300 transition">10</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ================= HERO ================= -->
+<header class="hero-gradient">
+  <div class="max-w-5xl mx-auto px-6 pt-24 pb-24 md:pb-28 min-h-[82vh] flex flex-col justify-center">
+    <div class="font-mono text-xs md:text-sm eyebrow uppercase text-purple-300/80 mb-6">Context Engineering Series · Part 8</div>
+    <h1 class="font-extrabold tracking-tight text-4xl md:text-6xl lg:text-7xl leading-[1.05]">
+      From the Evolving Harness<br class="hidden md:block" /> to the <span class="grad">Frontier Harness</span>
+    </h1>
+    <p class="mt-8 max-w-3xl text-lg md:text-2xl text-slate-300 font-light leading-relaxed">
+      Part 7 proved a guard could grade my writing. Part 8 asks the harder question it left open... what stops a guard the agent can simply switch off for itself? The answer isn't a smarter guard. It's <span class="text-white font-normal">custody</span>: a human who isn't the agent holds the key. Then that one idea travels across three runtimes.
+    </p>
+    <div class="mt-10 flex flex-wrap gap-x-6 gap-y-2 font-mono text-xs md:text-sm text-slate-400">
+      <span>26 components</span><span class="rule">·</span>
+      <span>434 automated checks</span><span class="rule">·</span>
+      <span>two adversarial passes + a fuzzer catch, ~28 real defects fixed</span><span class="rule">·</span>
+      <span>one core, three runtimes</span>
+    </div>
+  </div>
+</header>
+
+<main class="max-w-5xl mx-auto px-6">
+
+  <!-- ========== 2. THE WALL PART 7 LEFT STANDING ========== -->
+  <section class="py-16 md:py-24 reveal">
+    <h2 class="text-2xl md:text-4xl font-bold tracking-tight mb-8">The Wall Part 7 Left Standing</h2>
+    <div class="prose-lg max-w-3xl text-slate-300 text-lg">
+      <p>Part 7 ended on a wall I couldn't argue my way past. I'd built a detector that catches generic AI writing well, and it does. But when I pointed a model at imitating <em>me</em> specifically, the detector lost... it scored a deliberate mimic as more me-than-me. No better detector fixes that, because the answer was never in the text. Whether something is authentically mine is a question of provenance... who actually typed it. A detector can improve forever and still never answer that one.</p>
+      <p>That sounds like a dead end, and for authorship it mostly is. But it turned out to be the most useful thing Part 7 taught me, because the same shape shows up one level up... in the guard itself.</p>
+    </div>
+  </section>
+
+  <!-- ========== 3. CUSTODY, NOT TYPING ========== -->
+  <section class="py-16 md:py-24 reveal">
+    <h2 class="text-2xl md:text-4xl font-bold tracking-tight mb-8">Custody, Not Typing</h2>
+    <div class="prose-lg max-w-3xl text-slate-300 text-lg">
+      <p>Here's the move. A guard the agent can approve for itself, disable, or quietly rewrite is theater. It's the mimic grading its own mimic, exactly the failure Part 7 named, wearing a different coat. So the guard can't be something the agent installs. Its trust root has to be held by a human who is not the agent.</p>
+      <p>The mechanics are smaller than the idea. I hold a secret the agent never sees, and I pin a fingerprint of the safety files myself. When I switched the core on, the agent that wrote every line of it was structurally unable to do that one step for me. It guided, I turned the key. Custody, not typing.</p>
+    </div>
+    <div class="glass rounded-2xl p-6 md:p-8 mt-10 max-w-3xl">
+      <svg viewBox="0 0 640 200" class="w-full" role="img" aria-label="The agent builds and guides, but the human holds the trust root.">
+        <defs><linearGradient id="g1" x1="0" x2="1"><stop offset="0" stop-color="#60a5fa"/><stop offset="1" stop-color="#a78bfa"/></linearGradient></defs>
+        <rect x="24" y="60" width="200" height="80" rx="12" fill="#111a2e" stroke="#1e2b45"/>
+        <text x="124" y="95" text-anchor="middle" fill="#e2e8f0" font-family="JetBrains Mono" font-size="14">the agent</text>
+        <text x="124" y="118" text-anchor="middle" fill="#64748b" font-family="JetBrains Mono" font-size="11">builds · guides · runs</text>
+        <rect x="416" y="60" width="200" height="80" rx="12" fill="#111a2e" stroke="url(#g1)"/>
+        <text x="516" y="95" text-anchor="middle" fill="#e2e8f0" font-family="JetBrains Mono" font-size="14">the owner</text>
+        <text x="516" y="118" text-anchor="middle" fill="#34d399" font-family="JetBrains Mono" font-size="11">holds the key 🔑</text>
+        <line x1="224" y1="100" x2="410" y2="100" stroke="#1e2b45" stroke-width="2" stroke-dasharray="5 5"/>
+        <text x="320" y="90" text-anchor="middle" fill="#f87171" font-family="JetBrains Mono" font-size="11">cannot cross</text>
+        <text x="320" y="150" text-anchor="middle" fill="#64748b" font-family="Inter" font-size="12">the builder is forbidden from installing its own trust root</text>
+      </svg>
+    </div>
+  </section>
+
+  <!-- ========== 4. VOICE WAS ONLY THE FIRST FAILURE CLASS ========== -->
+  <section class="py-16 md:py-24 reveal">
+    <h2 class="text-2xl md:text-4xl font-bold tracking-tight mb-8">Voice Was Only the First Failure Class</h2>
+    <div class="grid md:grid-cols-5 gap-10 items-start">
+      <div class="md:col-span-3 prose-lg text-slate-300 text-lg">
+        <p>The voice checker was never really about voice. It was one instance of a pattern: a deterministic test for a specific way work goes wrong, wired to block, honest about its ceiling. Once I saw it that way, the interesting question became what <em>else</em> has that shape.</p>
+        <p>Plenty, it turns out. An agent doesn't only risk sounding like a robot. It can be talked into something by a poisoned input it was only supposed to read. It can leak data on the way out, sometimes through a channel nobody thinks of as "sending." It can fire an action nobody approved, or leave a record you can't actually trust. Each of those is a failure class, and each gets the same treatment the voice tell got: a check that fires on the bad case, stays quiet on the good one, and says plainly what it can't catch.</p>
+      </div>
+      <div class="md:col-span-2 glass rounded-2xl p-6">
+        <div class="font-mono text-xs uppercase eyebrow text-slate-500 mb-4">The failure classes</div>
+        <ul class="space-y-2.5 text-sm text-slate-300 font-mono">
+          <li><span class="text-cyan">slop</span> · sounds like AI <span class="text-slate-500">(Part 7)</span></li>
+          <li><span class="text-cyan">injection</span> · input treated as an order</li>
+          <li><span class="text-cyan">egress</span> · data leaving quietly</li>
+          <li><span class="text-cyan">evidence</span> · a record you can trust</li>
+          <li><span class="text-cyan">drift</span> · a guard that stopped working</li>
+          <li><span class="text-cyan">silent-empty</span> · green over nothing</li>
+          <li><span class="text-cyan">ungrounded</span> · a claim with no source</li>
+          <li><span class="text-cyan">execution</span> · it didn't actually run</li>
+          <li><span class="text-cyan">model-swap</span> · a different model than asked</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 4b. INTERACTIVE: THE FAILURE CLASSES ========== -->
+  <section class="py-16 md:py-24 reveal">
+    <div class="font-mono text-xs uppercase eyebrow text-emerald mb-3">Interactive · the failure classes</div>
+    <h2 class="text-2xl md:text-4xl font-bold tracking-tight mb-6">One Shape, Nine Times</h2>
+    <div class="prose-lg max-w-3xl text-slate-300 text-lg mb-8">
+      <p>Each failure class gets the same treatment the voice tell got: a check that fires on the bad case, stays quiet on the good one, and says plainly what it can't catch. Click one and see what it catches, and where its ceiling is.</p>
+    </div>
+    <div class="grid md:grid-cols-2 gap-6">
+      <div class="grid grid-cols-2 gap-2" id="fcRows">
+        <div class="cand p-3 text-center font-mono text-xs text-cyan" data-fc="slop">slop</div>
+        <div class="cand p-3 text-center font-mono text-xs text-cyan" data-fc="injection">injection</div>
+        <div class="cand p-3 text-center font-mono text-xs text-cyan" data-fc="egress">egress</div>
+        <div class="cand p-3 text-center font-mono text-xs text-cyan" data-fc="evidence">evidence</div>
+        <div class="cand p-3 text-center font-mono text-xs text-cyan" data-fc="drift">drift</div>
+        <div class="cand p-3 text-center font-mono text-xs text-cyan" data-fc="silent">silent-empty</div>
+        <div class="cand p-3 text-center font-mono text-xs text-cyan" data-fc="ungrounded">ungrounded</div>
+        <div class="cand p-3 text-center font-mono text-xs text-cyan" data-fc="execution">execution</div>
+        <div class="cand p-3 text-center font-mono text-xs text-cyan" data-fc="modelswap">model-swap</div>
+      </div>
+      <div class="glass rounded-2xl p-6 min-h-[200px]" id="fcDetail">
+        <div class="text-slate-500 text-sm font-mono">Select a failure class.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 5. ONE CORE, THREE RUNTIMES ========== -->
+  <section class="py-16 md:py-24 reveal">
+    <h2 class="text-2xl md:text-4xl font-bold tracking-tight mb-8">One Core, Three Runtimes</h2>
+    <div class="prose-lg max-w-3xl text-slate-300 text-lg">
+      <p>A layer that only works inside one tool is really just a feature of that tool. So the checks live in a single host-neutral core, and each runtime reaches them through a thin adapter that translates the tool's own events into one shared vocabulary. The same poisoned-input check, the same egress guard, the same tamper-evident record, whether the work happens in an agentic coding CLI, an open-source coding agent, or a managed enterprise execution runtime.</p>
+      <p>The way I keep myself honest about "the same" is a conformance test: for an equivalent operation, all three adapters have to produce identical canonical events. If they diverge, that's a bug in an adapter, not a difference I get to wave away.</p>
+    </div>
+    <div class="glass rounded-2xl p-6 md:p-8 mt-10">
+      <svg viewBox="0 0 720 240" class="w-full" role="img" aria-label="Three runtimes reach one shared core through adapters.">
+        <rect x="270" y="95" width="180" height="56" rx="12" fill="#0b1120" stroke="url(#g1)"/>
+        <text x="360" y="120" text-anchor="middle" fill="#e2e8f0" font-family="JetBrains Mono" font-size="13">portable core</text>
+        <text x="360" y="138" text-anchor="middle" fill="#64748b" font-family="JetBrains Mono" font-size="10">the checks + canonical events</text>
+        <g font-family="JetBrains Mono" font-size="12">
+          <rect x="40" y="30" width="180" height="46" rx="10" fill="#111a2e" stroke="#1e2b45"/><text x="130" y="58" text-anchor="middle" fill="#93c5fd">Claude Code</text>
+          <rect x="40" y="97" width="180" height="46" rx="10" fill="#111a2e" stroke="#1e2b45"/><text x="130" y="125" text-anchor="middle" fill="#93c5fd">OpenCode</text>
+          <rect x="40" y="164" width="180" height="46" rx="10" fill="#111a2e" stroke="#1e2b45"/><text x="130" y="185" text-anchor="middle" fill="#93c5fd">managed runtime</text>
+        </g>
+        <g stroke="#1e2b45" stroke-width="2"><line x1="220" y1="53" x2="270" y2="115"/><line x1="220" y1="120" x2="270" y2="122"/><line x1="220" y1="187" x2="270" y2="130"/></g>
+        <text x="245" y="150" text-anchor="middle" fill="#64748b" font-family="Inter" font-size="10">adapters</text>
+        <text x="600" y="126" text-anchor="middle" fill="#34d399" font-family="JetBrains Mono" font-size="11">same events → same checks</text>
+        <line x1="450" y1="122" x2="520" y2="122" stroke="#1e2b45" stroke-width="2"/>
+      </svg>
+    </div>
+  </section>
+
+  <!-- ========== 6. RECONCILED AGAINST THE REAL THING ========== -->
+  <section class="py-16 md:py-24 reveal">
+    <h2 class="text-2xl md:text-4xl font-bold tracking-tight mb-8">Reconciled Against the Real Thing</h2>
+    <div class="prose-lg max-w-3xl text-slate-300 text-lg">
+      <p>The obvious question about any layer like this is whether it's real or a diagram. So I didn't model the adapters against how I imagined each tool worked. I read each product's actual installed interface and reconciled against it, which immediately caught things my guess got wrong.</p>
+    </div>
+    <div class="overflow-x-auto mt-8 max-w-4xl">
+      <table class="honest w-full text-sm text-slate-300 font-mono">
+        <thead><tr class="text-slate-500 text-xs uppercase eyebrow"><th class="text-left">Runtime</th><th class="text-left">Reconciled against</th><th class="text-left">What reading the real API corrected</th></tr></thead>
+        <tbody>
+          <tr><td class="text-cyan">Claude Code</td><td>its native hooks</td><td class="text-slate-400">the reference adapter</td></tr>
+          <tr><td class="text-cyan">OpenCode</td><td>its public plugin interface</td><td class="text-slate-400">three shapes I'd guessed wrong — an "idle" signal I'd treated as "finished," a separate approval hook I'd been double-counting, and where the tool's arguments actually live</td></tr>
+          <tr><td class="text-cyan">managed runtime</td><td>its installed types</td><td class="text-slate-400">it's more observable than I assumed, with a native approval step — but it's observe-only, so the harness reconciles a change after the fact rather than pre-gating it</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="mt-6 max-w-3xl text-slate-400 text-base">Honest boundary on that word "reconciled": I verified the adapters against each product's real interface, and that's a real step past a mock. It is not the same as watching them fire inside a live session. That last mile is named in the limits below, not hidden.</p>
+  </section>
+
+  <!-- ========== 7. IT ATTACKED ITS OWN CODE ========== -->
+  <section class="py-16 md:py-24 reveal">
+    <h2 class="text-2xl md:text-4xl font-bold tracking-tight mb-8">It Attacked Its Own Code</h2>
+    <div class="prose-lg max-w-3xl text-slate-300 text-lg">
+      <p>A guard you only tested on the happy path is a guard you haven't tested. The egress control came straight out of a real, public attack class: an agent reads a poisoned record, and data walks out the door inside a URL that a rendered image quietly resolves... no click, no obvious "send." So I built the guard to treat any resolvable URL as a way out, not just the ones that look like sending.</p>
+      <p class="pull pl-5 text-slate-200 text-xl font-light my-8">Then I turned the same adversarial process on the harness itself. Two passes, each one trying to break what the last one built, and then a fuzzer that went after what both of them missed. Together they found and fixed roughly 28 real defects in the harness's own code... including one in the egress guard I'd written specifically to stop that attack, which had its own version of the exact bug it was meant to catch.</p>
+      <p>That last one is the point. The whole thesis is that you don't trust the thing to grade itself, so running the thesis on the harness meant the harness got caught too, before any of it was switched on. That's what earns a gate its trust... it fires on cue, and I've tried hard to break it, and it held.</p>
+    </div>
+  </section>
+
+  <!-- ========== 8. WHERE THIS IS THIN ========== -->
+  <section class="py-16 md:py-24 reveal">
+    <h2 class="text-2xl md:text-4xl font-bold tracking-tight mb-8">Where This Is Thin</h2>
+    <div class="prose-lg max-w-3xl text-slate-300 text-lg">
+      <p><span class="text-amber font-medium">The checks only catch what I taught them.</span> A determined attacker who knows a specific guard exists can study it and route around it... which is precisely the ceiling Part 7 named for the voice detector, now the honest ceiling for the whole layer. I raise it over time. I don't get to declare it finished.</p>
+      <p><span class="text-amber font-medium">Verified against the interface is not the same as watched in flight.</span> All three adapters were reconciled against the real installed APIs, and that caught real bugs. But a live in-host capture... a real session, watched end to end, with the controls observed actually firing... hasn't run yet. So far the controls are proven in tests and haven't been seen live inside a running host.</p>
+      <p><span class="text-amber font-medium">One owner with the key is still one owner.</span> A single person holds the trust root, and until a separate hardening step runs, tampering with the safety files gets <em>detected</em> without being physically <em>prevented</em> at the OS level. The managed runtime is also observe-only by nature, so enforcement there lives on the platform side. Both of those are disclosed here, and neither is solved yet.</p>
+    </div>
+  </section>
+
+  <!-- ========== 9. SO WHAT, THEN ========== -->
+  <section class="py-16 md:py-24 reveal">
+    <h2 class="text-2xl md:text-4xl font-bold tracking-tight mb-8">So What, Then: What Portability Buys</h2>
+    <div class="prose-lg max-w-3xl text-slate-300 text-lg">
+      <p>You can't own the frontier model. You rent it, and it changes under you every few months. So the durable thing was never going to be the model. It's everything wrapped around it: the checks that catch how the work goes wrong, the evals that say whether the output is any good, the record of what actually happened, and the custody that decides who's allowed to change any of it.</p>
+      <p>Part 7 showed that layer can evolve itself while the model underneath stays frozen. Part 8's addition is that the layer travels. The same core, the same custody, the same honest ceiling, running across whichever runtime the work happens in... and unlike the model you rent, that's yours to keep. And it isn't only my claim... NVIDIA's SoL-Pi built a set of harness improvements on one model and carried them to another with no retraining, the same bet running in someone else's lab.</p>
+      <p class="text-slate-400 text-base">This is proven, not shipped to production, and it's a first honest draft of the argument, not the last word. If you build agents that touch anything you'd mind losing, I'd rather you poke at where it's thin than take it on faith.</p>
+    </div>
+  </section>
+
+</main>
+
+<footer class="border-t border-line mt-10">
+  <div class="max-w-5xl mx-auto px-6 py-12 text-slate-500 text-sm font-mono flex flex-col md:flex-row justify-between gap-4">
+    <span>Context Engineering Series · Part 8 · John Tehrani</span>
+    <span>Custody, not typing.</span>
+  </div>
+</footer>
+
+<script>
+  const io = new IntersectionObserver((es) => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+  // ---- interactive: the failure classes ----
+  const FC = {
+    slop:      { fires: 'text that reads as generic AI', quiet: 'writing that carries a real voice', ceiling: 'it can tell you something is not obviously AI. It cannot tell you who actually wrote it.' },
+    injection: { fires: 'a record field trying to hand the agent orders', quiet: 'the same field read as plain data', ceiling: 'only the injection shapes it has been taught. A novel phrasing can still slip past.' },
+    egress:    { fires: 'data leaving through any resolvable URL, even one a rendered image quietly fetches', quiet: 'a link to an allowlisted destination', ceiling: 'a channel nobody has modeled yet.' },
+    evidence:  { fires: 'a claimed write that left zero rows behind', quiet: 'a write the row count confirms', ceiling: 'it checks that something landed, not that what landed is right.' },
+    drift:     { fires: 'a guard that silently stopped firing', quiet: 'a guard still catching its cases', ceiling: 'drift in a dimension it was never told to watch.' },
+    silent:    { fires: 'a green status sitting over zero results', quiet: 'a green status over real output', ceiling: 'an empty result that is actually the correct answer.' },
+    ungrounded:{ fires: 'a claim with no source behind it', quiet: 'a claim tied to its source', ceiling: 'a claim that is well-sourced and still wrong.' },
+    execution: { fires: 'a step that reported done but never ran', quiet: 'a step with a real artifact behind it', ceiling: 'it needs something concrete to check against — a commit is not enough.' },
+    modelswap: { fires: 'a different model than the one that was asked for', quiet: 'the model the route pinned', ceiling: 'it trusts the gateway’s own report of which model answered.' },
+  };
+  const fcDetail = document.getElementById('fcDetail');
+  document.querySelectorAll('#fcRows .cand').forEach(chip => chip.addEventListener('click', () => {
+    document.querySelectorAll('#fcRows .cand').forEach(c => c.classList.remove('sel'));
+    chip.classList.add('sel');
+    const f = FC[chip.dataset.fc];
+    fcDetail.innerHTML = `
+      <div class="mb-3"><span class="font-mono text-xs text-red">fires on</span><div class="text-slate-200 text-sm mt-1">${f.fires}</div></div>
+      <div class="mb-3"><span class="font-mono text-xs text-emerald">stays quiet on</span><div class="text-slate-300 text-sm mt-1">${f.quiet}</div></div>
+      <div><span class="font-mono text-xs text-amber">the ceiling</span><div class="text-slate-400 text-sm mt-1">${f.ceiling}</div></div>`;
+  }));
+</script>
+</body>
+</html>
