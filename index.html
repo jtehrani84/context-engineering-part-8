@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>From Evolving Harness to Frontier Harness — Context Engineering, Part 8</title>
-<meta name="description" content="Part 8 of the Context Engineering series: the voice-checking pattern, generalized to the failure classes of agentic work and ported across three runtimes — with the trust root held by a human, not the agent. Custody, not typing." />
+<title>From Evolving Harness to Frontier Harness · Context Engineering, Part 8</title>
+<meta name="description" content="Part 8 of the Context Engineering series: the voice-checking pattern, generalized to the failure classes of agentic work and ported across three runtimes, with the trust root held by a human, not the agent. Custody, not typing." />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
@@ -66,9 +66,10 @@
       From the Evolving Harness<br class="hidden md:block" /> to the <span class="grad">Frontier Harness</span>
     </h1>
     <p class="mt-8 max-w-3xl text-lg md:text-2xl text-slate-300 font-light leading-relaxed">
-      Part 7 proved a guard could grade my writing. This one picks up the obvious hole that left behind: if the agent can switch its own guard off, what was the guard ever worth? The answer wasn't a cleverer guard. It was <span class="text-white font-normal">custody</span>, working out who holds the key and making sure that's a human and not the agent. Once that held, the same idea carried over to three different runtimes.
+      Part 7 proved a guard could grade my writing. This one picks up the obvious hole that left behind: if the agent can switch its own guard off, what was the guard ever worth? What fixed it was <span class="text-white font-normal">custody</span>, working out who holds the key and making sure it sits with a human owner the agent can't reach, and once that held, the same idea carried over to three different runtimes.
     </p>
     <div class="mt-10 flex flex-wrap gap-x-6 gap-y-2 font-mono text-xs md:text-sm text-slate-400">
+      <span>At Part 8:</span>
       <span>26 components</span><span class="rule">·</span>
       <span>434 automated checks</span><span class="rule">·</span>
       <span>two adversarial passes + a fuzzer catch, ~28 real defects fixed</span><span class="rule">·</span>
@@ -83,17 +84,18 @@
   <section class="py-16 md:py-24 reveal">
     <h2 class="text-2xl md:text-4xl font-bold tracking-tight mb-8">The Wall Part 7 Left Standing</h2>
     <div class="prose-lg max-w-3xl text-slate-300 text-lg">
-      <p>Part 7 ended on a wall I couldn't argue my way past. I'd built a detector that catches generic AI writing well, and it does. But when I pointed a model at imitating <em>me</em> specifically, the detector lost, scoring a deliberate mimic as more me-than-me. No better detector fixes that, because the answer was never in the text. Whether something is authentically mine is a question of provenance, of who actually typed it. A detector can improve forever and still never answer that one.</p>
-      <p>That sounds like a dead end, and for authorship it mostly is. But it turned out to be the most useful thing Part 7 taught me, because the same shape shows up one level up... in the guard itself.</p>
+      <p>Part 7 ended on a wall I couldn't argue my way past. I'd built a detector that catches generic AI writing well, and it does, but when I pointed a model at imitating <em>me</em> specifically, the detector lost, scoring a deliberate mimic as more me-than-me. A better detector wouldn't fix that, because the answer was never in the text. Whether something is authentically mine is a question of provenance, of who actually typed it, and a detector can keep improving forever without ever getting to that question.</p>
+      <p>For authorship that's mostly where it stops. The same shape shows up one level up, though, in the guard itself, and that version I could do something about.</p>
     </div>
   </section>
 
-  <!-- ========== 3. CUSTODY, NOT TYPING ========== -->
+  <!-- ========== 3. WHO HOLDS THE KEY ========== -->
   <section class="py-16 md:py-24 reveal">
-    <h2 class="text-2xl md:text-4xl font-bold tracking-tight mb-8">Custody, Not Typing</h2>
+    <h2 class="text-2xl md:text-4xl font-bold tracking-tight mb-8">Who Holds the Key</h2>
     <div class="prose-lg max-w-3xl text-slate-300 text-lg">
-      <p>Here's the move. A guard the agent can approve for itself, disable, or quietly rewrite is theater. It's the mimic grading its own mimic, exactly the failure Part 7 named, wearing a different coat. So the guard can't be something the agent installs. Its trust root has to be held by a human who is not the agent.</p>
-      <p>The mechanics are smaller than the idea. I hold a secret the agent never sees, and I pin a fingerprint of the safety files myself. When I switched the core on, the agent that wrote every line of it was structurally unable to do that one step for me. It guided, I turned the key. Custody, not typing.</p>
+      <p>If the agent can approve itself past its own guard, switch it off, or quietly rewrite it, the guard is theater, the mimic grading its own mimic, which is the same failure Part 7 ran into wearing a different coat. So the guard can't be something the agent installs, and its trust root has to sit with a human owner, somebody outside the agent entirely.</p>
+      <p>The mechanism itself is pretty small. I hold a secret the agent never sees, and I pin a fingerprint of the safety files myself. When I switched the core on, the agent that wrote every line of it was structurally unable to do that one step for me, so it guided and I turned the key.</p>
+      <p>I'm also the only person holding that key, and when I wrote this a separate hardening step hadn't run yet, so tampering with the safety files got <em>detected</em> but wasn't physically <em>prevented</em> at the OS level.</p>
     </div>
     <div class="glass rounded-2xl p-6 md:p-8 mt-10 max-w-3xl">
       <svg viewBox="0 0 640 200" class="w-full" role="img" aria-label="The agent builds and guides, but the human holds the trust root.">
@@ -103,7 +105,7 @@
         <text x="124" y="118" text-anchor="middle" fill="#64748b" font-family="JetBrains Mono" font-size="11">builds · guides · runs</text>
         <rect x="416" y="60" width="200" height="80" rx="12" fill="#111a2e" stroke="url(#g1)"/>
         <text x="516" y="95" text-anchor="middle" fill="#e2e8f0" font-family="JetBrains Mono" font-size="14">the owner</text>
-        <text x="516" y="118" text-anchor="middle" fill="#34d399" font-family="JetBrains Mono" font-size="11">holds the key 🔑</text>
+        <text x="516" y="118" text-anchor="middle" fill="#34d399" font-family="JetBrains Mono" font-size="11">holds the key</text>
         <line x1="224" y1="100" x2="410" y2="100" stroke="#1e2b45" stroke-width="2" stroke-dasharray="5 5"/>
         <text x="320" y="90" text-anchor="middle" fill="#f87171" font-family="JetBrains Mono" font-size="11">cannot cross</text>
         <text x="320" y="150" text-anchor="middle" fill="#64748b" font-family="Inter" font-size="12">the builder is forbidden from installing its own trust root</text>
@@ -116,8 +118,8 @@
     <h2 class="text-2xl md:text-4xl font-bold tracking-tight mb-8">Voice Was Only the First Failure Class</h2>
     <div class="grid md:grid-cols-5 gap-10 items-start">
       <div class="md:col-span-3 prose-lg text-slate-300 text-lg">
-        <p>The voice checker was never really about voice. It was one instance of a pattern: a deterministic test for a specific way work goes wrong, wired to block, honest about its ceiling. Once I saw it that way, the interesting question became what <em>else</em> has that shape.</p>
-        <p>Plenty, it turns out. An agent doesn't only risk sounding like a robot. It can be talked into something by a poisoned input it was only supposed to read. It can leak data on the way out, sometimes through a channel nobody thinks of as "sending." It can fire an action nobody approved, or leave a record you can't actually trust. Each of those is a failure class, and each gets the same treatment the voice tell got: a check that fires on the bad case, stays quiet on the good one, and says plainly what it can't catch.</p>
+        <p>The voice checker was one instance of a pattern, a deterministic test for a specific way work goes wrong, wired to block and upfront about its ceiling, and once I saw it that way I started asking what <em>else</em> in agent work has that shape.</p>
+        <p>An agent doesn't only risk sounding like a robot. It can be talked into something by a poisoned input it was only supposed to read, or leak data on the way out (sometimes through a channel nobody thinks of as "sending"), or fire an action nobody approved, or leave a record you can't actually trust. Each of those is a failure class, and each one gets a check built the way the voice tell's was, one that fires on the bad case, stays quiet on the good one, and says plainly what it can't catch.</p>
       </div>
       <div class="md:col-span-2 glass rounded-2xl p-6">
         <div class="font-mono text-xs uppercase eyebrow text-slate-500 mb-4">The failure classes</div>
@@ -139,9 +141,9 @@
   <!-- ========== 4b. INTERACTIVE: THE FAILURE CLASSES ========== -->
   <section class="py-16 md:py-24 reveal">
     <div class="font-mono text-xs uppercase eyebrow text-emerald mb-3">Interactive · the failure classes</div>
-    <h2 class="text-2xl md:text-4xl font-bold tracking-tight mb-6">One Shape, Nine Times</h2>
+    <h2 class="text-2xl md:text-4xl font-bold tracking-tight mb-6">What Each Check Catches and Where It Stops</h2>
     <div class="prose-lg max-w-3xl text-slate-300 text-lg mb-8">
-      <p>Each failure class gets the same treatment the voice tell got: a check that fires on the bad case, stays quiet on the good one, and says plainly what it can't catch. Click one and see what it catches, and where its ceiling is.</p>
+      <p>Click any of the nine and you'll see what sets its check off, what it leaves alone, and the ceiling it can't see past.</p>
     </div>
     <div class="grid md:grid-cols-2 gap-6">
       <div class="grid grid-cols-2 gap-2" id="fcRows">
@@ -159,14 +161,15 @@
         <div class="text-slate-500 text-sm font-mono">Select a failure class.</div>
       </div>
     </div>
+    <p class="mt-8 max-w-3xl text-slate-400 text-base">The ceiling they all share is that a check only catches what I taught it, so a determined attacker who knows a specific guard exists can study it and route around it. Part 7 hit that same ceiling with the voice detector, and here it applies to the whole layer. I keep raising it over time, and I don't get to call it finished.</p>
   </section>
 
   <!-- ========== 5. ONE CORE, THREE RUNTIMES ========== -->
   <section class="py-16 md:py-24 reveal">
     <h2 class="text-2xl md:text-4xl font-bold tracking-tight mb-8">One Core, Three Runtimes</h2>
     <div class="prose-lg max-w-3xl text-slate-300 text-lg">
-      <p>A layer that only works inside one tool is really just a feature of that tool. So the checks live in a single host-neutral core, and each runtime reaches them through a thin adapter that translates the tool's own events into one shared vocabulary. The same poisoned-input check, the same egress guard, the same tamper-evident record, whether the work happens in an agentic coding CLI, an open-source coding agent, or a managed enterprise execution runtime.</p>
-      <p>The way I keep myself honest about "the same" is a conformance test: for an equivalent operation, all three adapters have to produce identical canonical events. If they diverge, that's a bug in an adapter, not a difference I get to wave away.</p>
+      <p>I didn't want a layer that only works inside one tool, since at that point it's really a feature of the tool. So the checks live in a single host-neutral core, and each runtime reaches them through a thin adapter that translates the tool's own events into one shared vocabulary. You get the same poisoned-input check, egress guard, and tamper-evident record whether the work happens in an agentic coding CLI, an open-source coding agent, or a managed enterprise execution runtime.</p>
+      <p>"The same" gets checked by a conformance test. For an equivalent operation, all three adapters have to produce identical canonical events, and if they diverge I treat it as a bug in that adapter and go fix it there.</p>
     </div>
     <div class="glass rounded-2xl p-6 md:p-8 mt-10">
       <svg viewBox="0 0 720 240" class="w-full" role="img" aria-label="Three runtimes reach one shared core through adapters.">
@@ -190,38 +193,28 @@
   <section class="py-16 md:py-24 reveal">
     <h2 class="text-2xl md:text-4xl font-bold tracking-tight mb-8">Reconciled Against the Real Thing</h2>
     <div class="prose-lg max-w-3xl text-slate-300 text-lg">
-      <p>The obvious question about any layer like this is whether it's real or a diagram. So I didn't model the adapters against how I imagined each tool worked. I read each product's actual installed interface and reconciled against it, which immediately caught things my guess got wrong.</p>
+      <p>The fair question about any layer like this is whether it's real or a diagram. So I read each product's actual installed interface and reconciled the adapters against that, instead of against how I'd imagined each tool worked, and it caught a few of my guesses right away.</p>
     </div>
     <div class="overflow-x-auto mt-8 max-w-4xl">
       <table class="honest w-full text-sm text-slate-300 font-mono">
         <thead><tr class="text-slate-500 text-xs uppercase eyebrow"><th class="text-left">Runtime</th><th class="text-left">Reconciled against</th><th class="text-left">What reading the real API corrected</th></tr></thead>
         <tbody>
           <tr><td class="text-cyan">Claude Code</td><td>its native hooks</td><td class="text-slate-400">the reference adapter</td></tr>
-          <tr><td class="text-cyan">OpenCode</td><td>its public plugin interface</td><td class="text-slate-400">three shapes I'd guessed wrong — an "idle" signal I'd treated as "finished," a separate approval hook I'd been double-counting, and where the tool's arguments actually live</td></tr>
-          <tr><td class="text-cyan">managed runtime</td><td>its installed types</td><td class="text-slate-400">it's more observable than I assumed, with a native approval step — but it's observe-only, so the harness reconciles a change after the fact rather than pre-gating it</td></tr>
+          <tr><td class="text-cyan">OpenCode</td><td>its public plugin interface</td><td class="text-slate-400">three shapes I'd guessed wrong: an "idle" signal I'd treated as "finished," a separate approval hook I'd been double-counting, and where the tool's arguments actually live</td></tr>
+          <tr><td class="text-cyan">managed runtime</td><td>its installed types</td><td class="text-slate-400">it's more observable than I assumed, with a native approval step, but it's observe-only, so the harness reconciles a change after the fact rather than pre-gating it</td></tr>
         </tbody>
       </table>
     </div>
-    <p class="mt-6 max-w-3xl text-slate-400 text-base">Honest boundary on that word "reconciled": I verified the adapters against each product's real interface, and that's a real step past a mock. It is not the same as watching them fire inside a live session. That last mile is named in the limits below, not hidden.</p>
+    <p class="mt-6 max-w-3xl text-slate-400 text-base">Checking the adapters against each product's real interface is a real step past a mock, and it still isn't the same as watching them fire inside a live session. When I wrote this, that live in-host capture (a real session watched end to end, with the controls observed actually firing) hadn't run, so the controls were proven in tests and hadn't been seen live inside a running host. And because the managed runtime is observe-only by nature, enforcement there lives on the platform side.</p>
   </section>
 
   <!-- ========== 7. IT ATTACKED ITS OWN CODE ========== -->
   <section class="py-16 md:py-24 reveal">
     <h2 class="text-2xl md:text-4xl font-bold tracking-tight mb-8">It Attacked Its Own Code</h2>
     <div class="prose-lg max-w-3xl text-slate-300 text-lg">
-      <p>A guard you only tested on the happy path is a guard you haven't tested. The egress control came straight out of a real, public attack class: an agent reads a poisoned record, and data walks out the door inside a URL that a rendered image quietly resolves... no click, no obvious "send." So I built the guard to treat any resolvable URL as a way out, not just the ones that look like sending.</p>
-      <p class="pull pl-5 text-slate-200 text-xl font-light my-8">Then I turned the same adversarial process on the harness itself. Two passes, each one trying to break what the last one built, and then a fuzzer that went after what both of them missed. Together they found and fixed roughly 28 real defects in the harness's own code... including one in the egress guard I'd written specifically to stop that attack, which had its own version of the exact bug it was meant to catch.</p>
-      <p>That last one is the point. The whole bet is that you don't let a thing grade itself, and the harness doesn't get to skip its own rule, so its code got caught the same way everything else does, before any of it went live. That's what earns a gate its trust: it fired on cue, I tried hard to break it, and it held.</p>
-    </div>
-  </section>
-
-  <!-- ========== 8. WHERE THIS IS THIN ========== -->
-  <section class="py-16 md:py-24 reveal">
-    <h2 class="text-2xl md:text-4xl font-bold tracking-tight mb-8">Where This Is Thin</h2>
-    <div class="prose-lg max-w-3xl text-slate-300 text-lg">
-      <p><span class="text-amber font-medium">The checks only catch what I taught them.</span> A determined attacker who knows a specific guard exists can study it and route around it... which is precisely the ceiling Part 7 named for the voice detector, now the honest ceiling for the whole layer. I raise it over time. I don't get to declare it finished.</p>
-      <p><span class="text-amber font-medium">Verified against the interface is not the same as watched in flight.</span> All three adapters were reconciled against the real installed APIs, and that caught real bugs. But a live in-host capture... a real session, watched end to end, with the controls observed actually firing... hasn't run yet. So far the controls are proven in tests and haven't been seen live inside a running host.</p>
-      <p><span class="text-amber font-medium">One owner with the key is still one owner.</span> A single person holds the trust root, and until a separate hardening step runs, tampering with the safety files gets <em>detected</em> without being physically <em>prevented</em> at the OS level. The managed runtime is also observe-only by nature, so enforcement there lives on the platform side. Both of those are disclosed here, and neither is solved yet.</p>
+      <p>The egress control came straight out of a real, public attack class. An agent reads a poisoned record, and data walks out the door inside a URL that a rendered image quietly resolves... no click, no obvious "send." So I built the guard to treat any resolvable URL as a way out, including the ones that don't look like sending at all.</p>
+      <p class="pull pl-5 text-slate-200 text-xl font-light my-8">Then I turned the same adversarial process on the harness itself, with two passes each trying to break what the last one built and then a fuzzer going after what both of them missed. Together they found and fixed roughly 28 real defects in the harness's own code, including one in the egress guard I'd written specifically to stop that attack, which had its own version of the exact bug it was meant to catch.</p>
+      <p>I'd spent the whole build refusing to let anything grade itself, and it would've made no sense to exempt the harness from that, so its code got caught the same way everything else does, before any of it went live. I tried hard to break the gate, and it fired on cue and held.</p>
     </div>
   </section>
 
@@ -229,10 +222,10 @@
   <section class="py-16 md:py-24 reveal">
     <h2 class="text-2xl md:text-4xl font-bold tracking-tight mb-8">What You Actually Get to Keep</h2>
     <div class="prose-lg max-w-3xl text-slate-300 text-lg">
-      <p>You can't own the frontier model. You rent it, and it changes under you every few months. So the durable thing was never going to be the model. It's everything wrapped around it: the checks that catch how the work goes wrong, the evals that say whether the output is any good, the record of what actually happened, and the custody that decides who's allowed to change any of it.</p>
-      <p>Part 7 showed that layer can evolve itself while the model underneath stays frozen. Part 8's addition is that the layer travels. The same core, the same custody, the same honest ceiling, running across whichever runtime the work happens in... and unlike the model you rent, that's yours to keep. And it isn't only my claim... NVIDIA's SoL-Pi built a set of harness improvements on one model and carried them to another with no retraining, the same bet running in someone else's lab.</p>
-      <p class="text-slate-400 text-base">This is proven, not shipped to production, and it's a first honest draft of the argument, not the last word. If you build agents that touch anything you'd mind losing, I'd rather you poke at where it's thin than take it on faith.</p>
-      <p class="mt-6">One limit still stands, and everything so far I improved by hand. Part 9 is the first time the harness improves itself, and the hard part turns out not to be the code that writes the change, it's the check that refuses to be fooled by it. That's next: <a href="https://jtehrani84.github.io/context-engineering-part-9/">read Part 9 →</a></p>
+      <p>You can't own the frontier model, you rent it, and it changes under you every few months. What lasts is the layer wrapped around it, the checks that catch how the work goes wrong, the evals that say whether the output is any good, the record of what actually happened, and the custody that decides who's allowed to change any of it.</p>
+      <p>Part 7 showed that layer can evolve itself while the model underneath stays frozen. What Part 8 adds is that it travels across whichever runtime the work happens in, and it stays yours when the model you're renting changes. I'm not the only one betting on that either... NVIDIA's SoL-Pi built a set of harness improvements on one model and carried them to another with no retraining.</p>
+      <p class="text-slate-400 text-base">It's a first draft of the argument, proven in tests and not shipped to production when I wrote it, so if you build agents that touch anything you'd mind losing, poke holes in it before you take any of it on faith.</p>
+      <p class="mt-6">Everything through Part 8 I improved by hand. Part 9 is the first time the harness improves itself, and the hard part there turns out not to be the code that writes the change, it's the check that refuses to be fooled by it. <a href="https://jtehrani84.github.io/context-engineering-part-9/">Read Part 9 →</a></p>
     </div>
   </section>
 
@@ -258,8 +251,8 @@
     drift:     { fires: 'a guard that silently stopped firing', quiet: 'a guard still catching its cases', ceiling: 'drift in a dimension it was never told to watch.' },
     silent:    { fires: 'a green status sitting over zero results', quiet: 'a green status over real output', ceiling: 'an empty result that is actually the correct answer.' },
     ungrounded:{ fires: 'a claim with no source behind it', quiet: 'a claim tied to its source', ceiling: 'a claim that is well-sourced and still wrong.' },
-    execution: { fires: 'a step that reported done but never ran', quiet: 'a step with a real artifact behind it', ceiling: 'it needs something concrete to check against — a commit is not enough.' },
-    modelswap: { fires: 'a different model than the one that was asked for', quiet: 'the model the route pinned — which is what lets you safely run a different brain per task', ceiling: 'it trusts the gateway’s own report of which model answered.' },
+    execution: { fires: 'a step that reported done but never ran', quiet: 'a step with a real artifact behind it', ceiling: 'it needs something concrete to check against, and a commit is not enough.' },
+    modelswap: { fires: 'a different model than the one that was asked for', quiet: 'the model the route pinned, which is what lets you safely run a different brain per task', ceiling: 'it trusts the gateway’s own report of which model answered.' },
   };
   const fcDetail = document.getElementById('fcDetail');
   document.querySelectorAll('#fcRows .cand').forEach(chip => chip.addEventListener('click', () => {
