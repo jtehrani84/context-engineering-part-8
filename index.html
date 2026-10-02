@@ -169,7 +169,7 @@
     <h2 class="text-2xl md:text-4xl font-bold tracking-tight mb-8">One Core, Three Runtimes</h2>
     <div class="prose-lg max-w-3xl text-slate-300 text-lg">
       <p>I didn't want a layer that only works inside one tool, since at that point it's really a feature of the tool. So the checks live in a single host-neutral core, and each runtime reaches them through a thin adapter that translates the tool's own events into one shared vocabulary. You get the same poisoned-input check, egress guard, and tamper-evident record whether the work happens in an agentic coding CLI, an open-source coding agent, or a managed enterprise execution runtime.</p>
-      <p>"The same" gets checked by a conformance test. For an equivalent operation, all three adapters have to produce identical canonical events, and if they diverge I treat it as a bug in that adapter and go fix it there.</p>
+      <p>"The same" gets checked by a conformance test. For an equivalent operation, the Claude Code and OpenCode adapters have to produce identical canonical events (the managed runtime, which the harness can only watch, isn't part of that test), and if they diverge I treat it as a bug in that adapter and go fix it there.</p>
     </div>
     <div class="glass rounded-2xl p-6 md:p-8 mt-10">
       <svg viewBox="0 0 720 240" class="w-full" role="img" aria-label="Three runtimes reach one shared core through adapters.">
@@ -205,7 +205,7 @@
         </tbody>
       </table>
     </div>
-    <p class="mt-6 max-w-3xl text-slate-400 text-base">Checking the adapters against each product's real interface is a real step past a mock, and it still isn't the same as watching them fire inside a live session. When I wrote this, that live in-host capture (a real session watched end to end, with the controls observed actually firing) hadn't run, so the controls were proven in tests and hadn't been seen live inside a running host. And because the managed runtime is observe-only by nature, enforcement there lives on the platform side.</p>
+    <p class="mt-6 max-w-3xl text-slate-400 text-base">Checking the adapters against each product's real interface is a real step past a mock, and it still isn't the same as watching them fire inside a live session. When I wrote this, that live in-host capture (a real session watched end to end, with the controls observed actually firing) hadn't run, so the controls were proven in tests and hadn't been seen live inside a running host. And because the managed runtime's event stream is observe-only by nature, enforcement there lives on the platform side. Its own MCP server, which I hooked up to Claude Code on 2026-09-30, might be a way to gate that work up front, and the harness wasn't using it as of 2026-10-01.</p>
   </section>
 
   <!-- ========== 7. IT ATTACKED ITS OWN CODE ========== -->
